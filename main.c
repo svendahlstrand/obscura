@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define FIRST_PHOTO_POSITION 0x2000
 #define PHOTO_OFFSET 0x1000
@@ -14,10 +15,22 @@ uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   return  PHOTO_TILE_WIDTH * TILE_SIDES * image_y + image_x;
 }
 
-void write_image_from_save(FILE* save_file, uint8_t number) {
-  char filename[13];
+// Takes name and postfix number as parameters and return a complete filename.
+// name must be big enough to hold itself, postfix and 6 extra characters.
+char *pgm_postfixed_filename(char name[], uint8_t postfix) {
+  char postrix_str[3];
+  sprintf(postrix_str, "%d", postfix);
 
-  snprintf(filename, sizeof filename, "image-%d.pgm", number + 1);
+  strncat(name, "-", strlen(name));
+  strncat(name, postrix_str, strlen(name));
+  strncat(name, ".pgm", strlen(name));
+
+  return name;
+}
+
+void write_image_from_save(FILE* save_file, uint8_t number) {
+  char filename[16] = "image";
+  pgm_postfixed_filename(filename, number + 1);
 
   FILE* image = fopen(filename, "w+");
 
