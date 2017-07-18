@@ -9,6 +9,7 @@
 #define TILE_SIDES 8
 #define MAX_FILE_NAME_LENGTH 262
 
+// Returns imageraster index given a tile index and x and y coordinates.
 uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   uint8_t image_x = x + (tile_index % PHOTO_TILE_WIDTH) * TILE_SIDES;
   uint8_t image_y = y + (tile_index / PHOTO_TILE_WIDTH) * TILE_SIDES;
@@ -21,7 +22,6 @@ uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
 // filename and postfix can be at most 256 characters long together.
 FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
   char full_name[MAX_FILE_NAME_LENGTH];
-
   sprintf(full_name, "%s-%d.pgm", filename, postfix);
 
   FILE* image = fopen(full_name, "w+");
@@ -33,12 +33,14 @@ FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
   return image;
 }
 
-void pgm_from_game_boy_save_ram(FILE* save_file, uint8_t number) {
+// Takes a Game Boy Camera save RAM file and photo index and creates the
+// corresponding PGM file. Valid index is between 0 and 29.
+void pgm_from_game_boy_save_ram(FILE* save_file, uint8_t photo_index) {
   uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
-  FILE* image = pgm_open_and_initialize("image", number + 1);
+  FILE* image = pgm_open_and_initialize("image", photo_index + 1);
   char tile[16];
 
-  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * number), 0);
+  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * photo_index), 0);
 
   for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * 2; i += 2) {
     fread(tile, 1, sizeof tile, save_file);
