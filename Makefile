@@ -1,6 +1,6 @@
 .PHONY: clean
 
-./bin/gb-develop: main.c
+./bin/obscura: main.c
 	mkdir -p ./bin/
 	gcc -Wall $< -o $@
 
