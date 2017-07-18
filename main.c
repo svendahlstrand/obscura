@@ -7,6 +7,7 @@
 #define PHOTO_TILE_WIDTH 16
 #define PHOTO_TILE_HEIGHT 14
 #define TILE_SIDES 8
+#define MAX_FILE_NAME_LENGTH 262
 
 uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   uint8_t image_x = x + (tile_index % PHOTO_TILE_WIDTH) * TILE_SIDES;
@@ -15,34 +16,29 @@ uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   return  PHOTO_TILE_WIDTH * TILE_SIDES * image_y + image_x;
 }
 
-// Takes name and postfix number as parameters and return a complete filename.
-// name must be big enough to hold itself, postfix and 6 extra characters.
-char *pgm_postfixed_filename(char name[], uint8_t postfix) {
-  char postrix_str[3];
-  sprintf(postrix_str, "%d", postfix);
+// Creates and initializes a PGM file for writing, indicated by filename and
+// returns a pointer to the file stream.
+// filename and postfix can be at most 256 characters long together.
+FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
+  char full_name[MAX_FILE_NAME_LENGTH];
 
-  strncat(name, "-", strlen(name));
-  strncat(name, postrix_str, strlen(name));
-  strncat(name, ".pgm", strlen(name));
+  sprintf(full_name, "%s-%d.pgm", filename, postfix);
 
-  return name;
-}
-
-void write_image_from_save(FILE* save_file, uint8_t number) {
-  char filename[16] = "image";
-  pgm_postfixed_filename(filename, number + 1);
-
-  FILE* image = fopen(filename, "w+");
-
-  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * number), 0);
-
-  uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
+  FILE* image = fopen(full_name, "w+");
 
   fputs("P2\n", image);
   fprintf(image, "%d %d\n", PHOTO_TILE_WIDTH * TILE_SIDES, PHOTO_TILE_HEIGHT * TILE_SIDES);
   fputs("3\n", image);
 
+  return image;
+}
+
+void pgm_from_game_boy_save_ram(FILE* save_file, uint8_t number) {
+  uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
+  FILE* image = pgm_open_and_initialize("image", number + 1);
   char tile[16];
+
+  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * number), 0);
 
   for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * 2; i += 2) {
     fread(tile, 1, sizeof tile, save_file);
@@ -75,7 +71,7 @@ int main(int argc, char const *argv[]) {
   FILE* save_file = fopen(argv[1], "r");
 
   for (size_t i = 0; i < 30; i++) {
-    write_image_from_save(save_file, i);
+    pgm_from_game_boy_save_ram(save_file, i);
   }
 
   fclose(save_file);
