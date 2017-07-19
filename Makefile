@@ -2,7 +2,7 @@
 
 ./bin/obscura: main.c
 	mkdir -p ./bin/
-	gcc -Wall $< -o $@
+	gcc -Wall -Wextra -Wpedantic -Werror $< -o $@
 
 clean:
 	rm -rf ./bin/
