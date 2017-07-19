@@ -1,6 +1,8 @@
-.PHONY: clean
+.PHONY: all clean
 
-./bin/obscura: main.c
+all: ./bin/obscura
+
+./bin/obscura: ./src/main.c
 	mkdir -p ./bin/
 	gcc -std=c99 -Wall -Wextra -Wpedantic -Werror $< -o $@
 
