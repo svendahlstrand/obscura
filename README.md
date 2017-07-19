@@ -4,13 +4,13 @@ Salvage your beautiful photographs from a Game Boy Camera save file.
 
 ![](doc/img/obscura.jpg)
 
-Photos snapped with a Game Boy Camera is saved on a battery backed RAM on the cartridge. There's [lots of ways for you to backup that RAM][1], and thus your photos, to a save file on your computer.
+Photos snapped with a Game Boy Camera is stored on a battery backed RAM on the cartridge. There are [lots of ways for you to backup that RAM][1], and thus your photos, to a save file on your computer.
 
-Once you have that save file, pass it to `obscura` and you'll soon have all your snaps in [PGM image format][2] on your computer.
+Once you have that save file, pass it to `obscura`, and watch your snaps appear in [PGM image format][2].
 
 ## Extract photos from save file
 
-Just pass your save file as a parameter to `obscura` like this:
+Just pass a save file as a parameter to `obscura` like this:
 
 ```sh
 $ obscura game-boy-camera.sav
@@ -27,7 +27,7 @@ image-2.pgm          image-3.pgm
 
 ### Convert to other formats
 
-Of course it's easy to convert to any format you want. Here's an example using [ImageMagick][3]:
+Of course, it is easy to convert to any format you want. Here's an example using [ImageMagick][3]:
 
 ```sh
 mogrify -format png *.pgm
@@ -35,11 +35,11 @@ mogrify -format png *.pgm
 
 ## How to compile
 
- `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and you'll find a executable in the `bin` directory.
+ `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and find the executable in the `bin` directory.
 
 ## Alternatives and resources
 
-I developed `obscura` for my own amusement and to better understand the guts of the Game Boy Camera. But there's a handfull of other ways to get your snaps off the cartridge.
+I developed `obscura` for my amusement and to better understand the guts of the Game Boy Camera. However, there's a handful of other ways to get your snaps off the cartridge.
 
 * [BitBoy][4] - "Print" your images to an SD-card.
 * [GBcamera Image Saver][5]  "Print" your images to your computer.
