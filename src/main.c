@@ -11,11 +11,35 @@
 #define MAX_FILE_NAME_LENGTH 262
 
 // Returns imageraster index given a tile index and x and y coordinates.
-uint16_t get_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
+uint16_t imageraster_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   uint8_t image_x = x + (tile_index % PHOTO_TILE_WIDTH) * TILE_SIDES;
   uint8_t image_y = y + (tile_index / PHOTO_TILE_WIDTH) * TILE_SIDES;
 
   return  PHOTO_TILE_WIDTH * TILE_SIDES * image_y + image_x;
+}
+
+// Takes a Game Boy Camera save RAM file and photo index and populates the
+// provided image raster with pixels. Valid index is between 0 and 29.
+void imageraster_from_game_boy_save_ram(FILE* save_file, uint8_t *imageraster, uint8_t photo_index) {
+  char tile[16];
+
+  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * photo_index), 0);
+
+  for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * 2; i += 2) {
+    fread(tile, 1, sizeof tile, save_file);
+
+    uint8_t pixel_value;
+
+    for (size_t j = 0, y = 0; j < 16; j += 2, y++) {
+      for (size_t k = 0, x = 7; k < 8; k++, x--) {
+        pixel_value = ((tile[j] >> k) & 0x01) + (((tile[j + 1] >> k) & 0x01) << 1);
+
+        pixel_value = (pixel_value - 3) * -1;
+
+        imageraster[imageraster_pixel_index_from_tile(i / 2, x, y)] = pixel_value;
+      }
+    }
+  }
 }
 
 // Creates and initializes a PGM file for writing, indicated by filename and
@@ -34,30 +58,10 @@ FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
   return image;
 }
 
-// Takes a Game Boy Camera save RAM file and photo index and creates the
-// corresponding PGM file. Valid index is between 0 and 29.
-void pgm_from_game_boy_save_ram(FILE* save_file, uint8_t photo_index) {
-  uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
+// Writes an image ("image-<photo_index>.pgm") to disk base on the provided
+// image raster.
+void pgm_from_imageraster(uint8_t *imageraster, uint8_t photo_index) {
   FILE* image = pgm_open_and_initialize("image", photo_index + 1);
-  char tile[16];
-
-  fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * photo_index), 0);
-
-  for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * 2; i += 2) {
-    fread(tile, 1, sizeof tile, save_file);
-
-    uint8_t pixel_value;
-
-    for (size_t j = 0, y = 0; j < 16; j += 2, y++) {
-      for (size_t k = 0, x = 7; k < 8; k++, x--) {
-        pixel_value = ((tile[j] >> k) & 0x01) + (((tile[j + 1] >> k) & 0x01) << 1);
-
-        pixel_value = (pixel_value - 3) * -1;
-
-        imageraster[get_pixel_index_from_tile(i / 2, x, y)] = pixel_value;
-      }
-    }
-  }
 
   for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES; i++) {
     fprintf(image, "%d ", imageraster[i]);
@@ -83,8 +87,11 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
+  uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
+
   for (size_t i = 0; i < 30; i++) {
-    pgm_from_game_boy_save_ram(save_file, i);
+    imageraster_from_game_boy_save_ram(save_file, imageraster, i);
+    pgm_from_imageraster(imageraster, i);
   }
 
   fclose(save_file);
