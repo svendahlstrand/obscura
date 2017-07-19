@@ -71,7 +71,17 @@ void pgm_from_game_boy_save_ram(FILE* save_file, uint8_t photo_index) {
 }
 
 int main(int argc, char const *argv[]) {
+  if (argc != 2) {
+    printf("Usage: %s <file>\n", argv[0]);
+    exit(0);
+  }
+
   FILE* save_file = fopen(argv[1], "r");
+
+  if (save_file == NULL) {
+    fprintf(stderr, "Could not open file '%s'.\n", argv[1]);
+    exit(1);
+  }
 
   for (size_t i = 0; i < 30; i++) {
     pgm_from_game_boy_save_ram(save_file, i);
