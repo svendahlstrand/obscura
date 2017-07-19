@@ -33,9 +33,11 @@ Of course, it is easy to convert to any format you want. Here's an example using
 mogrify -format png *.pgm
 ```
 
-## How to compile
+## How to install
 
- `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and find the executable in the `bin` directory.
+Install on macOS using [homebrew][9] by running `homebrew install svendahlstrand/tap/obscura`.
+
+ For other systems you will have to build it yourself. `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and find the executable in the `bin` directory.
 
 ## Alternatives and resources
 
@@ -58,3 +60,4 @@ I had great use of the following resources.
 [6]: https://github.com/jkbenaim/gbcamextract
 [7]: http://netpbm.sourceforge.net/doc/pgm.html
 [8]: http://www.devrs.com/gb/files/gbcam.txt
+[9]: https://brew.sh/
