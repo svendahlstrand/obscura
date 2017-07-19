@@ -9,9 +9,10 @@
 #define PHOTO_TILE_HEIGHT 14
 #define TILE_SIDES 8
 #define MAX_FILE_NAME_LENGTH 262
+#define IMAGE_RASTER_SIZE PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES
 
-// Returns imageraster index given a tile index and x and y coordinates.
-uint16_t imageraster_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
+// Returns image raster index given a tile index and x and y coordinates.
+uint16_t image_raster_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_t y) {
   uint8_t image_x = x + (tile_index % PHOTO_TILE_WIDTH) * TILE_SIDES;
   uint8_t image_y = y + (tile_index / PHOTO_TILE_WIDTH) * TILE_SIDES;
 
@@ -20,7 +21,7 @@ uint16_t imageraster_pixel_index_from_tile(uint8_t tile_index, uint8_t x, uint8_
 
 // Takes a Game Boy Camera save RAM file and photo index and populates the
 // provided image raster with pixels. Valid index is between 0 and 29.
-void imageraster_from_game_boy_save_ram(FILE* save_file, uint8_t *imageraster, uint8_t photo_index) {
+void image_raster_from_game_boy_save_ram(FILE* save_file, uint8_t *image_raster, uint8_t photo_index) {
   char tile[16];
 
   fseek(save_file, FIRST_PHOTO_POSITION + (PHOTO_OFFSET * photo_index), 0);
@@ -36,7 +37,7 @@ void imageraster_from_game_boy_save_ram(FILE* save_file, uint8_t *imageraster, u
 
         pixel_value = (pixel_value - 3) * -1;
 
-        imageraster[imageraster_pixel_index_from_tile(i / 2, x, y)] = pixel_value;
+        image_raster[image_raster_pixel_index_from_tile(i / 2, x, y)] = pixel_value;
       }
     }
   }
@@ -60,11 +61,11 @@ FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
 
 // Writes an image ("image-<photo_index>.pgm") to disk base on the provided
 // image raster.
-void pgm_from_imageraster(uint8_t *imageraster, uint8_t photo_index) {
+void pgm_from_image_raster(uint8_t *image_raster, uint8_t photo_index) {
   FILE* image = pgm_open_and_initialize("image", photo_index + 1);
 
-  for (size_t i = 0; i < PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES; i++) {
-    fprintf(image, "%d ", imageraster[i]);
+  for (size_t i = 0; i < IMAGE_RASTER_SIZE; i++) {
+    fprintf(image, "%d ", image_raster[i]);
 
     if (i % (PHOTO_TILE_WIDTH * TILE_SIDES) == PHOTO_TILE_WIDTH * TILE_SIDES - 1) {
       fputs("\n", image);
@@ -87,11 +88,11 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
-  uint8_t imageraster[PHOTO_TILE_WIDTH * PHOTO_TILE_HEIGHT * TILE_SIDES * TILE_SIDES];
+  uint8_t image_raster[IMAGE_RASTER_SIZE];
 
   for (size_t i = 0; i < 30; i++) {
-    imageraster_from_game_boy_save_ram(save_file, imageraster, i);
-    pgm_from_imageraster(imageraster, i);
+    image_raster_from_game_boy_save_ram(save_file, image_raster, i);
+    pgm_from_image_raster(image_raster, i);
   }
 
   fclose(save_file);
