@@ -37,7 +37,7 @@ mogrify -format png *.pgm
 
 Install on macOS using [homebrew][9] by running `homebrew install svendahlstrand/tap/obscura`.
 
- For other systems you will have to build it yourself. `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and find the executable in the `bin` directory.
+ For other systems, you will have to build it yourself. `obscura` is written in C, free from dependencies, and should compile and run on most platforms. Just run `make` and find the executable in the `bin` directory.
 
 ## Alternatives and resources
 
