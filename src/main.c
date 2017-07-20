@@ -52,9 +52,9 @@ FILE *pgm_open_and_initialize(char filename[], uint8_t postfix) {
 
   FILE* image = fopen(full_name, "w+");
 
-  fputs("P2\n", image);
+  fputs("P5\n", image);
   fprintf(image, "%d %d\n", PHOTO_TILE_WIDTH * TILE_SIDES, PHOTO_TILE_HEIGHT * TILE_SIDES);
-  fputs("3\n", image);
+  fputs("255\n", image);
 
   return image;
 }
@@ -65,11 +65,7 @@ void pgm_from_image_raster(uint8_t *image_raster, uint8_t photo_index) {
   FILE* image = pgm_open_and_initialize("image", photo_index + 1);
 
   for (size_t i = 0; i < IMAGE_RASTER_SIZE; i++) {
-    fprintf(image, "%d ", image_raster[i]);
-
-    if (i % (PHOTO_TILE_WIDTH * TILE_SIDES) == PHOTO_TILE_WIDTH * TILE_SIDES - 1) {
-      fputs("\n", image);
-    }
+    fputc(image_raster[i] * 85, image);
   }
 
   fclose(image);
