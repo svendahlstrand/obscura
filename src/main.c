@@ -84,7 +84,7 @@ int main(int argc, char const *argv[]) {
   FILE* save_file = fopen(argv[1], "r");
 
   if (save_file == NULL) {
-    fprintf(stderr, "Could not open file '%s'.\n", argv[1]);
+    fprintf(stderr, "Error: could not open file '%s'.\n", argv[1]);
     exit(1);
   }
 
