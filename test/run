@@ -39,9 +39,9 @@ fi
 $OBSCURA 2>&1 "$TEST_FILE"
 
 test="Extracted image should have correct (known) hash."
-output=$(md5 -q "$IMAGE_1")
+output=$(shasum "$IMAGE_1")
 
-if [[ $output != "89b98df2f0ebc2148ed28341634bde91" ]]; then
+if [[ $output != *"8de7e105a13eeb6a9f8a4529c86037c25dfa47cc"* ]]; then
   fail
 fi
 
