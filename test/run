@@ -2,11 +2,20 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 OBSCURA=$DIR/../bin/obscura
+TEST_FILE=$DIR/gbc.sav
+IMAGE_1=$DIR/../image-1.pgm
+
+function cleanup {
+  rm -f "$DIR"/../*.pgm
+}
 
 function fail {
+  cleanup
+
   echo >&2 "Failed test '$test'"
   echo >&2
   echo >&2 "Output: $output"
+
   exit 1
 }
 
@@ -26,5 +35,16 @@ output="$($OBSCURA 2>&1 file-that-does-not-exists.sav)"
 if [[ $output != *"Error:"* ]]; then
   fail
 fi
+
+$OBSCURA 2>&1 "$TEST_FILE"
+
+test="Extracted image should have correct (known) hash."
+output=$(md5 -q "$IMAGE_1")
+
+if [[ $output != "89b98df2f0ebc2148ed28341634bde91" ]]; then
+  fail
+fi
+
+cleanup
 
 echo "All tests passed!"
