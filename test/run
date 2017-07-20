@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OBSCURA=$DIR/../bin/obscura
+
+function fail {
+  echo >&2 "Failed test '$test'"
+  echo >&2
+  echo >&2 "Output: $output"
+  exit 1
+}
+
+test="obscura must exist to be under test."
+command -v "$OBSCURA" >/dev/null 2>&1 || { echo >&2 "Could not find 'obscura'. You should probable run 'make'."; exit 1; }
+
+test="It should show usage information when run without commands."
+output=$($OBSCURA)
+
+if [[ $output != *"Usage:"* ]]; then
+  fail
+fi
+
+test="It should show error message when file does not exist."
+output="$($OBSCURA 2>&1 file-that-does-not-exists.sav)"
+
+if [[ $output != *"Error:"* ]]; then
+  fail
+fi
+
+echo "All tests passed!"
