@@ -1,4 +1,6 @@
-# obscura
+# obscura [![Build Status](https://travis-ci.org/svendahlstrand/obscura.svg?branch=master)](https://travis-ci.org/svendahlstrand/obscura)
+
+
 
 Salvage your beautiful photographs from a Game Boy Camera save file.
 
