@@ -35,7 +35,7 @@ void image_raster_from_game_boy_save_ram(FILE* save_file, uint8_t *image_raster,
       for (size_t k = 0, x = 7; k < 8; k++, x--) {
         pixel_value = ((tile[j] >> k) & 0x01) + (((tile[j + 1] >> k) & 0x01) << 1);
 
-        pixel_value = (pixel_value - 3) * -1;
+        pixel_value = pixel_value ^ 3;
 
         image_raster[image_raster_pixel_index_from_tile(i / 2, x, y)] = pixel_value;
       }
